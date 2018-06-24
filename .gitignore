@@ -1,3 +1,7 @@
+# Less build files
+ClientApp/src/**/*.css
+ClientApp/src/**/*.css.map
+
 # VSCode
 .vscode/
 
