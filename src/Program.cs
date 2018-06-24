@@ -13,6 +13,7 @@ using Newtonsoft.Json;
 using EthereumBalance.Caches;
 using EthereumBalance.Configs;
 using EthereumBalance.Database;
+using EthereumBalance.Services;
 
 namespace EthereumBalance
 {
@@ -56,6 +57,7 @@ namespace EthereumBalance
                 services.AddSingleton<ConfigObject>(configs);
                 services.AddTransient<IDBManager, DBManager>();
                 services.AddSingleton<Cache>(new Cache());
+                services.AddSingleton<BalanceService>();
             });
 
             // Builds host
