@@ -25,15 +25,23 @@ export class Home extends Component<{}, IHomeState> {
                     <span>
                         Address:
                     </span>
-                    <input value={this.state.address} onChange={(e) => { this.setState({ address: e.target.value }); }} />
+                    <input value={this.state.address} onChange={this.handleAddressChange} />
                 </p>
                 <p>
                     <span>
                         Timestamp:
                     </span>
-                    <input value={this.state.timestamp.toString()} onChange={(e) => { this.setState({ timestamp: Number(e.target.value) }); }} />
+                    <input value={this.state.timestamp.toString()} onChange={this.handleTimestampChange} />
                 </p>
             </div>
         );
+    }
+
+    private handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        this.setState({ address: e.target.value });
+    }
+
+    private handleTimestampChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        this.setState({ timestamp: Number(e.target.value) });
     }
 }
