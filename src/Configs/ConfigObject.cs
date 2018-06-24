@@ -7,5 +7,6 @@ namespace EthereumBalance.Configs
         public string archiveNodeUrl { get; set; }
         public int? avgBlockInterval { get; set; }
         public string sqlitePath { get; set; }
+        public TokenConfig[] tokens { get; set; }
     }
 }

@@ -12,6 +12,7 @@ using EthereumBalance.Configs;
 using EthereumBalance.Entities;
 using EthereumBalance.Database;
 using EthereumBalance.Extensions;
+using EthereumBalance.Cryptography;
 
 namespace EthereumBalance.Services
 {
@@ -57,6 +58,40 @@ namespace EthereumBalance.Services
                 Console.WriteLine($"Error trying to check ETH balance: {ex.Message}");
                 Console.WriteLine($"Error Trace: {ex}");
                 return null;
+            }
+
+            // Checks token balance
+            foreach (var token in configs.tokens)
+            {
+                // Calculates storage position
+                string position;
+                byte[] positionBytes = new byte[64];
+                byte[] indexBytes = token.storageIndex.ToBigEndianBytes();
+                Array.Copy(address, 0, positionBytes, 32 - address.Length, address.Length);
+                Array.Copy(indexBytes, 0, positionBytes, 64 - indexBytes.Length, indexBytes.Length);
+                using (var keccak = new KeccakUnmanaged(256))
+                    position = keccak.ComputeHash(positionBytes).ToHex();
+
+                // Checks balance
+                try
+                {
+                    using (var hc = new HttpClient())
+                    {
+                        var hrm = new HttpRequestMessage(HttpMethod.Post, configs.archiveNodeUrl);
+                        hrm.Content = new StringContent(JsonConvert.SerializeObject(new GetStorageAtRequest(token.contract.ToBytes(), position, targetBlock.Height)), Encoding.UTF8, "application/json");
+                        var response = await hc.SendAsync(hrm);
+                        string content = await response.Content.ReadAsStringAsync();
+                        var resObj = JsonConvert.DeserializeObject<GenericParityResponse<string>>(content).result;
+                        BigInteger tokenBalance = resObj.ToBigInteger();
+                        result.Tokens.Add(token.symbol, tokenBalance.ToDecString(token.decimals, token.decimals));
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error trying to check {token.symbol} balance: {ex.Message}");
+                    Console.WriteLine($"Error Trace: {ex}");
+                    return null;
+                }
             }
 
             return result;
