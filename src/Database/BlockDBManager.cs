@@ -12,7 +12,7 @@ namespace EthereumBalance.Database
         public List<Block> ListBlocks()
         {
             var blocks = new List<Block>();
-            using (var reader = ExecuteQuery($"SELECT (height, timestamp) FROM {DBConst.TABLE_BLOCKS}"))
+            using (var reader = ExecuteQuery($"SELECT height, timestamp FROM {DBConst.TABLE_BLOCKS}"))
                 while (reader.Read())
                     blocks.Add(new Block(reader.GetInt64(0), reader.GetInt64(1)));
             return blocks;
