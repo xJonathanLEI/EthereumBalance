@@ -1,6 +1,7 @@
 using System;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.DependencyInjection;
+using EthereumBalance.Configs;
 using EthereumBalance.Constants;
 
 namespace EthereumBalance.Database
@@ -11,9 +12,9 @@ namespace EthereumBalance.Database
 
         private SqliteConnection connection;
 
-        public DBManager(string sqlitePath)
+        public DBManager(IServiceProvider isp)
         {
-            connection = new SqliteConnection($"Data Source={sqlitePath}");
+            connection = new SqliteConnection($"Data Source={isp.GetRequiredService<ConfigObject>().sqlitePath}");
             connection.Open();
             blockMgr = new BlockDBManager(connection);
         }
