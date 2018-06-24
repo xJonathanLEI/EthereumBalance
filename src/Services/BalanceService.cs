@@ -72,25 +72,32 @@ namespace EthereumBalance.Services
                 using (var keccak = new KeccakUnmanaged(256))
                     position = keccak.ComputeHash(positionBytes).ToHex();
 
-                // Checks balance
-                try
+                int failCount = 0;
+                while (true)
                 {
-                    using (var hc = new HttpClient())
+                    // Checks balance
+                    try
                     {
-                        var hrm = new HttpRequestMessage(HttpMethod.Post, configs.archiveNodeUrl);
-                        hrm.Content = new StringContent(JsonConvert.SerializeObject(new GetStorageAtRequest(token.contract.ToBytes(), position, targetBlock.Height)), Encoding.UTF8, "application/json");
-                        var response = await hc.SendAsync(hrm);
-                        string content = await response.Content.ReadAsStringAsync();
-                        var resObj = JsonConvert.DeserializeObject<GenericParityResponse<string>>(content).result;
-                        BigInteger tokenBalance = resObj.ToBigInteger();
-                        result.Tokens.Add(token.symbol, tokenBalance.ToDecString(token.decimals, token.decimals));
+                        using (var hc = new HttpClient())
+                        {
+                            var hrm = new HttpRequestMessage(HttpMethod.Post, configs.archiveNodeUrl);
+                            hrm.Content = new StringContent(JsonConvert.SerializeObject(new GetStorageAtRequest(token.contract.ToBytes(), position, targetBlock.Height)), Encoding.UTF8, "application/json");
+                            var response = await hc.SendAsync(hrm);
+                            string content = await response.Content.ReadAsStringAsync();
+                            var resObj = JsonConvert.DeserializeObject<GenericParityResponse<string>>(content).result;
+                            BigInteger tokenBalance = resObj.ToBigInteger();
+                            result.Tokens.Add(new TokenBalance(token.symbol, tokenBalance.ToDecString(token.decimals, token.decimals)));
+                            break;
+                        }
                     }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Error trying to check {token.symbol} balance: {ex.Message}");
-                    Console.WriteLine($"Error Trace: {ex}");
-                    return null;
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error trying to check {token.symbol} balance: {ex.Message}");
+                        Console.WriteLine($"Error Trace: {ex}");
+                    }
+                    failCount++;
+                    if (failCount == 5)
+                        return null;
                 }
             }
 
@@ -157,10 +164,11 @@ namespace EthereumBalance.Services
                 // Nothing on the right
                 if (minRightDiffBlock == null)
                 {
+                    int blockInterval = configs.avgBlockInterval.Value;
                     while (true)
                     {
                         // Estimate the target block
-                        long estTargetHeight = minLeftDiffBlock.Height + minLeftDiff / configs.avgBlockInterval.Value;
+                        long estTargetHeight = minLeftDiffBlock.Height + minLeftDiff / blockInterval;
                         if (estTargetHeight == minLeftDiffBlock.Height)
                             estTargetHeight++;
 
@@ -171,8 +179,8 @@ namespace EthereumBalance.Services
                         if (estTargetBlock == null)
                         {
                             // Adjusts block interval
-                            configs.avgBlockInterval = (int)(configs.avgBlockInterval * 1.1);
-                            Console.WriteLine($"Block interval auto adjusted to {configs.avgBlockInterval.Value}");
+                            blockInterval = (int)(blockInterval * 1.1);
+                            Console.WriteLine($"Block interval auto adjusted to {blockInterval}");
                         }
                         else break;
                     }

@@ -1,0 +1,78 @@
+.centerHolder {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    -webkit-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    width: 330px;
+    height: 558px;
+    .title {
+        text-align: center;
+        height: 10%;
+    }
+    .addressInput {
+        border: 0px;
+        border-bottom: 1px solid #1385e5;
+        width: 330px;
+    }
+    .contentFrame {
+        width: 100%;
+        height: 90%;
+        border: 1px solid grey;
+        border-radius: 5px;
+        display: flex;
+        .resultWrapper {
+            display: block;
+            align-self: center;
+            width: 100%;
+            .successLogo {
+                display: block;
+                margin: 20px auto;
+            }
+            .resultFrame {
+                width: 80%;
+                margin: 0 auto;
+                .valueTag {
+                    color: grey;
+                    margin: 0;
+                }
+                .resultValue {
+                    width: 100%;
+                    border: 0px;
+                    border-bottom: 1px solid #1385e5;
+                    margin-bottom: 20px;
+                    background-color: transparent;
+                }
+            }
+            .backBtn {
+                display: block;
+                margin: 10px auto;
+                width: 80%;
+                background-color: #1385e5;
+                padding: 12px 0;
+                text-align: center;
+                color: #fff;
+                font-size: 16px;
+                border-radius: 3px;
+                border: 0;
+            }
+        }
+    }
+    .frameTextOnly {
+        .contentFrame;
+        display: flex;
+        align-items: center;
+        .txtFetching {
+            width: 100%;
+            text-align: center;
+            font-size: large;
+            font-weight: bold;
+        }
+        .txtFailed {
+            width: 100%;
+            text-align: center;
+            font-size: large;
+            font-weight: bold;
+        }
+    }
+}

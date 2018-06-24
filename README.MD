@@ -23,7 +23,6 @@ Clone the repository:
 
 Publish the program:
 
-    $ npm install
     $ dotnet publish -c Release
     $ cd bin/Release/netcoreapp2.0/publish
 
